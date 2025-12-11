@@ -1,4 +1,3 @@
--- PRISON LIFE SCRIPT | FINAL + FIXED TELEPORTS + SMOOTH DROPDOWNS + TOGGLE AIMBOT
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -10,21 +9,19 @@ local char = player.Character or player.CharacterAdded:Wait()
 local hrp = char:WaitForChild("HumanoidRootPart")
 local camera = workspace.CurrentCamera
 
--- === FIXED & PERFECT COORDINATES (2025) ===
-local mp5Pos = Vector3.new(813.479, 100.94, 2229.178)
-local remingtonPos = Vector3.new(820.248, 100.795, 2229.696)
-local newPos = Vector3.new(920.982, 99.99, 2282.099)
+local mp5Pos = Vector3.new(813.479187, 100.940002, 2229.177734)  -- ORIGINAL COORDS FROM FIRST SCRIPT
+local remingtonPos = Vector3.new(820.248108, 100.795319, 2229.695557)
+local newPos = Vector3.new(920.982300, 99.989952, 2282.098633)
 local criminalBasePos = Vector3.new(-930.57, 94.13, 2053.59)
 local undergroundOffset = Vector3.new(0, -25, 0)
 
--- FIXED TELEPORT LOCATIONS (100% ON GROUND)
 local teleportLocations = {
-	["Cafeteria"]       = Vector3.new(919.31, 100.6, 2448.79),    -- Inside cafeteria, on floor
+	["Cafeteria"]       = Vector3.new(919.31, 100.6, 2448.79),
 	["Field"]           = Vector3.new(792.7, 97.99, 2527.9),
 	["Criminal Base"]   = Vector3.new(-930.57, 94.13, 2053.59),
 	["Cop Base"]        = Vector3.new(882.6, 100.7, 2263.4),
 	["Prison Roof"]     = Vector3.new(918.5, 130, 2350),
-	["Sewers Entrance"] = Vector3.new(927.0, 97.5, 2140.0),       -- ON GROUND, not under
+	["Sewers Entrance"] = Vector3.new(927.0, 97.5, 2140.0),
 	["Yard"]            = Vector3.new(792, 98, 2380),
 }
 
@@ -33,13 +30,11 @@ player.CharacterAdded:Connect(function(newChar)
 	hrp = char:WaitForChild("HumanoidRootPart")
 end)
 
--- === GUI SETUP (unchanged structure) ===
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "PRISON_LIFE_GUI"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- Toggle Button
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 50, 0, 50)
 toggleButton.Position = UDim2.new(0, 10, 0.5, -25)
@@ -54,7 +49,6 @@ toggleButton.Active = true
 toggleButton.Draggable = true
 toggleButton.Parent = screenGui
 
--- Main Frame
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 400, 0, 500)
 mainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
@@ -65,7 +59,6 @@ mainFrame.Draggable = true
 mainFrame.Visible = false
 mainFrame.Parent = screenGui
 
--- Title & Buttons
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 40)
 title.BackgroundTransparency = 1
@@ -95,7 +88,6 @@ buttonMinimize.Font = Enum.Font.GothamBold
 buttonMinimize.TextScaled = true
 buttonMinimize.Parent = mainFrame
 
--- Toggle Logic
 local guiOpen = false
 toggleButton.MouseButton1Click:Connect(function()
 	guiOpen = not guiOpen
@@ -113,7 +105,6 @@ UserInputService.InputBegan:Connect(function(i,gp)
 	if i.KeyCode == Enum.KeyCode.Insert and not gp then toggleButton.MouseButton1Click:Fire() end
 end)
 
--- === TABS ===
 local tabNames = {"Home", "Teleports and Tweens", "HITBOX and ESP", "Recommended"}
 local tabs = {}
 local tabFrames = {}
@@ -147,7 +138,6 @@ for i, name in ipairs(tabNames) do
 	end)
 end
 
--- Home Tab
 local homeLabel = Instance.new("TextLabel")
 homeLabel.Size = UDim2.new(1,-20,0,100)
 homeLabel.Position = UDim2.new(0,10,0,10)
@@ -155,10 +145,9 @@ homeLabel.BackgroundTransparency = 1
 homeLabel.TextColor3 = Color3.new(1,1,1)
 homeLabel.TextScaled = true
 homeLabel.TextWrapped = true
-homeLabel.Text = "Welcome to PRISON LIFE SCRIPT!\nCafeteria & Sewers fixed.\nAimbot now toggles off when reselected.\nDropdowns smoother!"
+homeLabel.Text = "Welcome to PRISON LIFE SCRIPT!\nCafeteria & Sewers fixed.\nAimbot now toggles off when reselected.\nDropdowns smoother!\nOriginal Get MP5 restored!"
 homeLabel.Parent = tabFrames["Home"]
 
--- === TELEPORTS AND TWEENS TAB ===
 local function createButton(parent,text,posY)
 	local btn = Instance.new("TextButton")
 	btn.Size = UDim2.new(1,-20,0,50)
@@ -172,17 +161,22 @@ local function createButton(parent,text,posY)
 	return btn
 end
 
-local function makeTween(target,time)
-	return TweenService:Create(hrp,TweenInfo.new(time,Enum.EasingStyle.Sine,Enum.EasingDirection.Out),{CFrame=CFrame.new(target)})
+local function makeTween(target, time)
+	return TweenService:Create(hrp, TweenInfo.new(time, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = CFrame.new(target)})
 end
 
-createButton(tabFrames["Teleports and Tweens"],"Get MP5",10).MouseButton1Click:Connect(function()
+local buttonMP5 = createButton(tabFrames["Teleports and Tweens"], "Get MP5", 10)
+local function tweenMP5()
 	if not hrp then return end
-	makeTween(hrp.Position+undergroundOffset,1.5):Play() task.wait(1.6)
-	makeTween(mp5Pos,2):Play() task.wait(2.1)
-	makeTween(mp5Pos+undergroundOffset,1.5):Play() task.wait(1.6)
-	makeTween(newPos,3):Play()
-end)
+	makeTween(hrp.Position + undergroundOffset, 2):Play()
+	task.wait(2)
+	makeTween(mp5Pos, 3):Play()
+	task.wait(3)
+	makeTween(mp5Pos + undergroundOffset, 2):Play()
+	task.wait(2)
+	makeTween(newPos, 4):Play()
+end
+buttonMP5.MouseButton1Click:Connect(tweenMP5)
 
 createButton(tabFrames["Teleports and Tweens"],"Get Remington",70).MouseButton1Click:Connect(function()
 	if not hrp then return end
@@ -192,13 +186,10 @@ createButton(tabFrames["Teleports and Tweens"],"Get Remington",70).MouseButton1C
 	makeTween(newPos,3):Play()
 end)
 
--- REMOVED: "Teleport to Criminal Base" button
-
--- TELEPORT DROPDOWN (SMOOTHER + FIXED POSITIONS)
-local teleportButton = createButton(tabFrames["Teleports and Tweens"],"Teleport Locations",10)  -- Moved up
+local teleportButton = createButton(tabFrames["Teleports and Tweens"],"Teleport Locations",130)  -- Moved down to not overlap
 local teleportDropdown = Instance.new("ScrollingFrame")
 teleportDropdown.Size = UDim2.new(1,-20,0,0)
-teleportDropdown.Position = UDim2.new(0,10,0,65)
+teleportDropdown.Position = UDim2.new(0,10,0,185)
 teleportDropdown.BackgroundColor3 = Color3.fromRGB(45,45,45)
 teleportDropdown.ScrollBarThickness = 8
 teleportDropdown.Visible = false
@@ -222,7 +213,6 @@ for name, pos in pairs(teleportLocations) do
 	b.Font = Enum.Font.GothamBold
 	b.TextScaled = true
 	
-	-- Smoother hover effect
 	b.MouseEnter:Connect(function() b.BackgroundColor3 = Color3.fromRGB(90,90,90) end)
 	b.MouseLeave:Connect(function() b.BackgroundColor3 = Color3.fromRGB(70,70,70) end)
 	
@@ -237,7 +227,6 @@ for name, pos in pairs(teleportLocations) do
 end
 teleportDropdown.CanvasSize = UDim2.new(0,0,0,y)
 
--- === HITBOX & AIMBOT (RENAMED + TOGGLE OFF ON RESELECT) ===
 local hitboxButton = createButton(tabFrames["HITBOX and ESP"], "HITBOX ESP", 10)
 local aimbotButton = createButton(tabFrames["HITBOX and ESP"], "Aimbot Targets", 70)
 
@@ -317,7 +306,6 @@ for i, teamName in ipairs({"Criminals","Guards","Inmates"}) do
 	end)
 end
 
--- AIMBOT DROPDOWN (TOGGLE OFF ON RESELECT + SMOOTHER)
 local aimbotDropdown = Instance.new("Frame")
 aimbotDropdown.Size = UDim2.new(1,-20,0,0)
 aimbotDropdown.Position = UDim2.new(0,10,0,aimbotButton.Position.Y.Offset + 55)
@@ -338,7 +326,6 @@ for i, teamName in ipairs({"Criminals","Guards","Inmates"}) do
 	option.Text = teamName
 	option.Parent = aimbotDropdown
 
-	-- Hover effect
 	option.MouseEnter:Connect(function() if aimbotTargetTeam ~= teamName then option.BackgroundColor3 = Color3.fromRGB(90,90,90) end end)
 	option.MouseLeave:Connect(function() if aimbotTargetTeam ~= teamName then option.BackgroundColor3 = Color3.fromRGB(70,70,70) end end)
 
@@ -367,7 +354,6 @@ aimbotButton.MouseButton1Click:Connect(function()
 	aimbotDropdown.Position = UDim2.new(0,10,0,aimbotButton.Position.Y.Offset + 55)
 end)
 
--- === NOCLIP (Recommended Tab) ===
 local noclipOn = false
 local noclipLoop
 
@@ -403,7 +389,6 @@ noclipBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
--- === RENDER LOOP ===
 RunService.RenderStepped:Connect(function()
 	updateESP()
 	if aimbotTargetTeam then
@@ -429,4 +414,4 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
-StarterGui:SetCore("SendNotification", {Title="Prison Life Script", Text="All fixes applied!", Duration=5})
+StarterGui:SetCore("SendNotification", {Title="Prison Life Script", Text="Original Get MP5 restored!", Duration=5})
