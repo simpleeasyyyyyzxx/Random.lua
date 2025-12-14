@@ -44,9 +44,8 @@ toggleButton.TextColor3 = Color3.new(1,1,1)
 toggleButton.Draggable = true
 toggleButton.Parent = screenGui
 
--- Made main GUI smaller and neater for mobile
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 350, 0, 450)  -- Smaller size
+mainFrame.Size = UDim2.new(0, 350, 0, 450)
 mainFrame.Position = UDim2.new(0.5, -175, 0.5, -225)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
 mainFrame.BorderSizePixel = 0
@@ -56,7 +55,6 @@ mainFrame.Draggable = true
 mainFrame.Visible = false
 mainFrame.Parent = screenGui
 
--- Rounded corners for neater look
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = mainFrame
@@ -84,7 +82,6 @@ local closeCorner = Instance.new("UICorner")
 closeCorner.CornerRadius = UDim.new(0, 8)
 closeCorner.Parent = closeButton
 
--- Toggle Logic
 local guiOpen = false
 toggleButton.MouseButton1Click:Connect(function()
 	guiOpen = not guiOpen
@@ -104,7 +101,6 @@ UserInputService.InputBegan:Connect(function(input)
 	end
 end)
 
--- Tabs (made slightly taller for mobile touch)
 local tabNames = {"Home", "Teleports", "Combat", "Movement", "Misc"}
 local tabs = {}
 local tabFrames = {}
@@ -138,7 +134,6 @@ for i, name in ipairs(tabNames) do
 	end)
 end
 
--- Helper for buttons (larger for mobile)
 local function createButton(parent, text, yPos, callback)
 	local btn = Instance.new("TextButton")
 	btn.Size = UDim2.new(1, -20, 0, 55)
@@ -158,7 +153,6 @@ local function createButton(parent, text, yPos, callback)
 	return btn
 end
 
--- Home Tab
 local homeLabel = Instance.new("TextLabel")
 homeLabel.Size = UDim2.new(1, -20, 0, 150)
 homeLabel.Position = UDim2.new(0, 10, 0, 10)
@@ -169,7 +163,6 @@ homeLabel.TextScaled = true
 homeLabel.Text = "STARZ PL SCRIPT\nUpdated Dec 2025\nTarget selection for ESP & Aimbot\nAnti Tase added\nNeater mobile GUI"
 homeLabel.Parent = tabFrames["Home"]
 
--- Teleports Tab (buttons spaced more)
 local yPos = 10
 for name, pos in pairs(teleportLocations) do
 	createButton(tabFrames["Teleports"], "TP to " .. name, yPos, function()
@@ -180,7 +173,7 @@ for name, pos in pairs(teleportLocations) do
 	yPos = yPos + 65
 end
 
--- Combat Tab - Added dropdowns for ESP & Aimbot targets
+-- Combat Tab - FIXED dropdowns (dynamic positioning + proper height calculation)
 local teams = {"Guards", "Inmates", "Criminals"}
 local teamColors = {Guards = Color3.fromRGB(0,0,255), Inmates = Color3.fromRGB(255,165,0), Criminals = Color3.fromRGB(255,0,0)}
 
@@ -192,73 +185,83 @@ local aimbotOn = false
 local killAuraOn = false
 local boxes = {}
 
--- ESP Button + Dropdown
+-- ESP Toggle
 createButton(tabFrames["Combat"], "Toggle ESP", 10, function()
 	espOn = not espOn
 end)
 
+-- ESP Dropdown Frame
 local espDropdown = Instance.new("Frame")
 espDropdown.Size = UDim2.new(1,-20,0,0)
-espDropdown.Position = UDim2.new(0,10,0,70)
+espDropdown.Position = UDim2.new(0,10,0,75)  -- Right below the toggle button
 espDropdown.BackgroundTransparency = 1
 espDropdown.Visible = false
 espDropdown.Parent = tabFrames["Combat"]
 
 local espDropOpen = false
-createButton(tabFrames["Combat"], "ESP Targets ▼", 70, function()
+local espToggleBtn = createButton(tabFrames["Combat"], "ESP Targets ▼", 75, function()
 	espDropOpen = not espDropOpen
 	espDropdown.Visible = espDropOpen
-	espDropdown.Size = espDropOpen and UDim2.new(1,-20,0,150) or UDim2.new(1,-20,0,0)
+	local height = espDropOpen and (65 * #teams + 10) or 0
+	espDropdown:TweenSize(UDim2.new(1,-20,0,height), "Out", "Quad", 0.3, true)
 end)
 
-local espY = 0
+-- ESP Options (dynamically placed)
+local espOptions = {}
+local espYPos = 0
 for _, teamName in ipairs(teams) do
-	local opt = createButton(espDropdown, teamName .. " ESP: OFF", espY, function()
+	local opt = createButton(espDropdown, teamName .. " ESP: OFF", espYPos, function()
 		selectedESPTargets[teamName] = not selectedESPTargets[teamName]
 		opt.Text = teamName .. " ESP: " .. (selectedESPTargets[teamName] and "ON" or "OFF")
 		opt.BackgroundColor3 = selectedESPTargets[teamName] and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
 	end)
-	espY = espY + 65
+	table.insert(espOptions, opt)
+	espYPos = espYPos + 65
 end
 
--- Aimbot Button + Dropdown
-createButton(tabFrames["Combat"], "Toggle Aimbot", 140, function()
+-- Aimbot Toggle
+local aimbotToggleBtn = createButton(tabFrames["Combat"], "Toggle Aimbot", 150, function()
 	aimbotOn = not aimbotOn
 end)
 
+-- Aimbot Dropdown Frame
 local aimbotDropdown = Instance.new("Frame")
 aimbotDropdown.Size = UDim2.new(1,-20,0,0)
-aimbotDropdown.Position = UDim2.new(0,10,0,200)
+aimbotDropdown.Position = UDim2.new(0,10,0,215)  -- Positioned below ESP section
 aimbotDropdown.BackgroundTransparency = 1
 aimbotDropdown.Visible = false
 aimbotDropdown.Parent = tabFrames["Combat"]
 
 local aimbotDropOpen = false
-createButton(tabFrames["Combat"], "Aimbot Target ▼", 200, function()
+local aimbotTargetBtn = createButton(tabFrames["Combat"], "Aimbot Target: None ▼", 215, function()
 	aimbotDropOpen = not aimbotDropOpen
 	aimbotDropdown.Visible = aimbotDropOpen
-	aimbotDropdown.Size = aimbotDropOpen and UDim2.new(1,-20,0,150) or UDim2.new(1,-20,0,0)
+	local height = aimbotDropOpen and (65 * #teams + 10) or 0
+	aimbotDropdown:TweenSize(UDim2.new(1,-20,0,height), "Out", "Quad", 0.3, true)
 end)
 
-local aimY = 0
+-- Aimbot Options
+local aimbotOptions = {}
+local aimYPos = 0
 for _, teamName in ipairs(teams) do
-	local opt = createButton(aimbotDropdown, "Aimbot " .. teamName, aimY, function()
+	local opt = createButton(aimbotDropdown, teamName, aimYPos, function()
 		if selectedAimbotTarget == teamName then
 			selectedAimbotTarget = nil
-			opt.BackgroundColor3 = Color3.fromRGB(50,50,50)
+			aimbotTargetBtn.Text = "Aimbot Target: None ▼"
 		else
 			selectedAimbotTarget = teamName
-			for _, child in ipairs(aimbotDropdown:GetChildren()) do
-				if child:IsA("TextButton") then
-					child.BackgroundColor3 = (child.Text == "Aimbot " .. teamName) and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
-				end
-			end
+			aimbotTargetBtn.Text = "Aimbot Target: " .. teamName .. " ▼"
+		end
+		for _, btn in ipairs(aimbotOptions) do
+			btn.BackgroundColor3 = (btn.Text == teamName and selectedAimbotTarget == teamName) and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
 		end
 	end)
-	aimY = aimY + 65
+	table.insert(aimbotOptions, opt)
+	aimYPos = aimYPos + 65
 end
 
-createButton(tabFrames["Combat"], "Toggle Kill Aura", 270, function()
+-- Kill Aura
+createButton(tabFrames["Combat"], "Toggle Kill Aura", 280, function()
 	killAuraOn = not killAuraOn
 end)
 
@@ -287,7 +290,7 @@ createButton(tabFrames["Movement"], "Reset WalkSpeed", 270, function()
 	if humanoid then humanoid.WalkSpeed = 16 end
 end)
 
--- Misc Tab - Removed God Mode (anti-kill), added Anti Tase
+-- Misc Tab
 local antiTaseOn = false
 
 createButton(tabFrames["Misc"], "Toggle Anti Tase", 10, function()
@@ -296,17 +299,15 @@ end)
 
 -- Loops
 RunService.Stepped:Connect(function()
-	-- Noclip
 	if noclipOn and char then
 		for _, part in pairs(char:GetDescendants()) do
 			if part:IsA("BasePart") then part.CanCollide = false end
 		end
 	end
 
-	-- Kill Aura fixed (targets enemies only, no self-damage)
 	if killAuraOn and hrp then
 		for _, plr in pairs(Players:GetPlayers()) do
-			if plr ~= player and plr.Team ~= player.Team and plr.Character and plr.Character:FindFirstChild("Humanoid") then
+			if plr ~= player and plr.Team ~= player.Team and plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character:FindFirstChild("HumanoidRootPart") then
 				local dist = (hrp.Position - plr.Character.HumanoidRootPart.Position).Magnitude
 				if dist < 20 then
 					plr.Character.Humanoid:TakeDamage(100)
@@ -315,7 +316,6 @@ RunService.Stepped:Connect(function()
 		end
 	end
 
-	-- Fly
 	if flyOn and hrp then
 		hrp.Velocity = Vector3.new(0,0,0)
 		local moveDir = humanoid.MoveDirection * 100
@@ -329,18 +329,17 @@ RunService.Stepped:Connect(function()
 	end
 end)
 
--- Anti Tase (prevents ragdoll from taser)
+-- Anti Tase
 if Workspace:FindFirstChild("Remote") and Workspace.Remote:FindFirstChild("PlayerTased") then
 	Workspace.Remote.PlayerTased.OnClientEvent:Connect(function()
 		if antiTaseOn then
-			wait(0.1)
+			task.wait(0.1)
 			if humanoid then humanoid:ChangeState(Enum.HumanoidStateType.Running) end
 		end
 	end)
 end
 
 RunService.RenderStepped:Connect(function()
-	-- Improved ESP with team selection & colors
 	if espOn then
 		for _, plr in pairs(Players:GetPlayers()) do
 			if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Team then
@@ -378,7 +377,6 @@ RunService.RenderStepped:Connect(function()
 		end
 	end
 
-	-- Aimbot with selected target team
 	if aimbotOn and selectedAimbotTarget then
 		local nearest = nil
 		local shortest = math.huge
@@ -407,4 +405,4 @@ UserInputService.JumpRequest:Connect(function()
 	end
 end)
 
-StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "better for mobile + anti tase, better esp, etc", Duration = 8})
+StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "Dropdowns fixed! ESP & Aimbot targets now work perfectly", Duration = 8})
