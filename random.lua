@@ -1,9 +1,8 @@
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
-local CoreGui = game:GetService("CoreGui")  -- Added for reliable GUI visibility
+local CoreGui = game:GetService("CoreGui")
 local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
@@ -32,7 +31,7 @@ end)
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "starz prison life gui"
 screenGui.ResetOnSpawn = false
-screenGui.Parent = CoreGui  -- Changed to CoreGui so the toggle button shows reliably on injection
+screenGui.Parent = CoreGui
 
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 60, 0, 60)
@@ -45,20 +44,27 @@ toggleButton.TextColor3 = Color3.new(1,1,1)
 toggleButton.Draggable = true
 toggleButton.Parent = screenGui
 
+-- Made main GUI smaller and neater for mobile
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 450, 0, 550)
-mainFrame.Position = UDim2.new(0.5, -225, 0.5, -275)
-mainFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
-mainFrame.BorderSizePixel = 2
+mainFrame.Size = UDim2.new(0, 350, 0, 450)  -- Smaller size
+mainFrame.Position = UDim2.new(0.5, -175, 0.5, -225)
+mainFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+mainFrame.BorderSizePixel = 0
+mainFrame.BackgroundTransparency = 0.1
 mainFrame.Active = true
 mainFrame.Draggable = true
 mainFrame.Visible = false
 mainFrame.Parent = screenGui
 
+-- Rounded corners for neater look
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = mainFrame
+
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 40)
+title.Size = UDim2.new(1, 0, 0, 50)
 title.BackgroundTransparency = 1
-title.Text = "starz prison life script"
+title.Text = "STARZ PRISON LIFE"
 title.TextColor3 = Color3.new(1,1,1)
 title.Font = Enum.Font.GothamBold
 title.TextScaled = true
@@ -66,13 +72,17 @@ title.Parent = mainFrame
 
 local closeButton = Instance.new("TextButton")
 closeButton.Size = UDim2.new(0, 40, 0, 40)
-closeButton.Position = UDim2.new(1, -45, 0, 0)
+closeButton.Position = UDim2.new(1, -45, 0, 5)
 closeButton.BackgroundColor3 = Color3.fromRGB(255,0,0)
 closeButton.Text = "X"
 closeButton.TextScaled = true
 closeButton.Font = Enum.Font.GothamBold
 closeButton.TextColor3 = Color3.new(1,1,1)
 closeButton.Parent = mainFrame
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 8)
+closeCorner.Parent = closeButton
 
 -- Toggle Logic
 local guiOpen = false
@@ -94,16 +104,16 @@ UserInputService.InputBegan:Connect(function(input)
 	end
 end)
 
--- Tabs
+-- Tabs (made slightly taller for mobile touch)
 local tabNames = {"Home", "Teleports", "Combat", "Movement", "Misc"}
 local tabs = {}
 local tabFrames = {}
 
 for i, name in ipairs(tabNames) do
 	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(1/#tabNames, 0, 0, 40)
-	btn.Position = UDim2.new((i-1)/#tabNames, 0, 0, 40)
-	btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+	btn.Size = UDim2.new(1/#tabNames, 0, 0, 50)
+	btn.Position = UDim2.new((i-1)/#tabNames, 0, 0, 50)
+	btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
 	btn.Text = name
 	btn.TextScaled = true
 	btn.Font = Enum.Font.GothamBold
@@ -112,49 +122,54 @@ for i, name in ipairs(tabNames) do
 	tabs[name] = btn
 
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(1, -20, 1, -90)
-	frame.Position = UDim2.new(0, 10, 0, 80)
-	frame.BackgroundColor3 = Color3.fromRGB(40,40,40)
-	frame.Visible = (name == "Home")
+	frame.Size = UDim2.new(1, -20, 1, -110)
+	frame.Position = UDim2.new(0, 10, 0, 100)
+	frame.BackgroundTransparency = 1
 	frame.Parent = mainFrame
+	frame.Visible = (name == "Home")
 	tabFrames[name] = frame
 
 	btn.MouseButton1Click:Connect(function()
 		for _, f in pairs(tabFrames) do f.Visible = false end
 		frame.Visible = true
 		for n, b in pairs(tabs) do
-			b.BackgroundColor3 = (n == name) and Color3.fromRGB(100,100,255) or Color3.fromRGB(60,60,60)
+			b.BackgroundColor3 = (n == name) and Color3.fromRGB(100,100,255) or Color3.fromRGB(50,50,50)
 		end
 	end)
 end
 
--- Helper for buttons
+-- Helper for buttons (larger for mobile)
 local function createButton(parent, text, yPos, callback)
 	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(1, -20, 0, 50)
+	btn.Size = UDim2.new(1, -20, 0, 55)
 	btn.Position = UDim2.new(0, 10, 0, yPos)
-	btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
+	btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
 	btn.Text = text
 	btn.TextScaled = true
 	btn.Font = Enum.Font.GothamBold
 	btn.TextColor3 = Color3.new(1,1,1)
 	btn.Parent = parent
-	btn.MouseButton1Click:Connect(callback)
+	if callback then btn.MouseButton1Click:Connect(callback) end
+	
+	local btnCorner = Instance.new("UICorner")
+	btnCorner.CornerRadius = UDim.new(0, 8)
+	btnCorner.Parent = btn
+	
 	return btn
 end
 
--- Home Tab (fixed invalid .Setup syntax)
+-- Home Tab
 local homeLabel = Instance.new("TextLabel")
-homeLabel.Size = UDim2.new(1, -20, 0, 200)
+homeLabel.Size = UDim2.new(1, -20, 0, 150)
 homeLabel.Position = UDim2.new(0, 10, 0, 10)
 homeLabel.BackgroundTransparency = 1
 homeLabel.TextColor3 = Color3.new(1,1,1)
 homeLabel.TextWrapped = true
 homeLabel.TextScaled = true
-homeLabel.Text = "starz pl script, Features: Teleports, ESP/Aimbot, Fly, Noclip, Speed, Kill Aura, anti arrest/anti tase, etc. enjoy"
+homeLabel.Text = "STARZ PL SCRIPT\nUpdated Dec 2025\nTarget selection for ESP & Aimbot\nAnti Tase added\nNeater mobile GUI"
 homeLabel.Parent = tabFrames["Home"]
 
--- Teleports Tab
+-- Teleports Tab (buttons spaced more)
 local yPos = 10
 for name, pos in pairs(teleportLocations) do
 	createButton(tabFrames["Teleports"], "TP to " .. name, yPos, function()
@@ -162,129 +177,213 @@ for name, pos in pairs(teleportLocations) do
 			hrp.CFrame = CFrame.new(pos + Vector3.new(0, 5, 0))
 		end
 	end)
-	yPos = yPos + 60
+	yPos = yPos + 65
 end
 
--- Combat Tab (ESP, Aimbot, Kill Aura)
+-- Combat Tab - Added dropdowns for ESP & Aimbot targets
+local teams = {"Guards", "Inmates", "Criminals"}
+local teamColors = {Guards = Color3.fromRGB(0,0,255), Inmates = Color3.fromRGB(255,165,0), Criminals = Color3.fromRGB(255,0,0)}
+
+local selectedESPTargets = {}
+local selectedAimbotTarget = nil
+
 local espOn = false
 local aimbotOn = false
 local killAuraOn = false
 local boxes = {}
 
+-- ESP Button + Dropdown
 createButton(tabFrames["Combat"], "Toggle ESP", 10, function()
 	espOn = not espOn
 end)
 
-createButton(tabFrames["Combat"], "Toggle Aimbot", 70, function()
+local espDropdown = Instance.new("Frame")
+espDropdown.Size = UDim2.new(1,-20,0,0)
+espDropdown.Position = UDim2.new(0,10,0,70)
+espDropdown.BackgroundTransparency = 1
+espDropdown.Visible = false
+espDropdown.Parent = tabFrames["Combat"]
+
+local espDropOpen = false
+createButton(tabFrames["Combat"], "ESP Targets ▼", 70, function()
+	espDropOpen = not espDropOpen
+	espDropdown.Visible = espDropOpen
+	espDropdown.Size = espDropOpen and UDim2.new(1,-20,0,150) or UDim2.new(1,-20,0,0)
+end)
+
+local espY = 0
+for _, teamName in ipairs(teams) do
+	local opt = createButton(espDropdown, teamName .. " ESP: OFF", espY, function()
+		selectedESPTargets[teamName] = not selectedESPTargets[teamName]
+		opt.Text = teamName .. " ESP: " .. (selectedESPTargets[teamName] and "ON" or "OFF")
+		opt.BackgroundColor3 = selectedESPTargets[teamName] and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
+	end)
+	espY = espY + 65
+end
+
+-- Aimbot Button + Dropdown
+createButton(tabFrames["Combat"], "Toggle Aimbot", 140, function()
 	aimbotOn = not aimbotOn
 end)
 
-createButton(tabFrames["Combat"], "Toggle Kill Aura", 130, function()
+local aimbotDropdown = Instance.new("Frame")
+aimbotDropdown.Size = UDim2.new(1,-20,0,0)
+aimbotDropdown.Position = UDim2.new(0,10,0,200)
+aimbotDropdown.BackgroundTransparency = 1
+aimbotDropdown.Visible = false
+aimbotDropdown.Parent = tabFrames["Combat"]
+
+local aimbotDropOpen = false
+createButton(tabFrames["Combat"], "Aimbot Target ▼", 200, function()
+	aimbotDropOpen = not aimbotDropOpen
+	aimbotDropdown.Visible = aimbotDropOpen
+	aimbotDropdown.Size = aimbotDropOpen and UDim2.new(1,-20,0,150) or UDim2.new(1,-20,0,0)
+end)
+
+local aimY = 0
+for _, teamName in ipairs(teams) do
+	local opt = createButton(aimbotDropdown, "Aimbot " .. teamName, aimY, function()
+		if selectedAimbotTarget == teamName then
+			selectedAimbotTarget = nil
+			opt.BackgroundColor3 = Color3.fromRGB(50,50,50)
+		else
+			selectedAimbotTarget = teamName
+			for _, child in ipairs(aimbotDropdown:GetChildren()) do
+				if child:IsA("TextButton") then
+					child.BackgroundColor3 = (child.Text == "Aimbot " .. teamName) and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
+				end
+			end
+		end
+	end)
+	aimY = aimY + 65
+end
+
+createButton(tabFrames["Combat"], "Toggle Kill Aura", 270, function()
 	killAuraOn = not killAuraOn
 end)
 
--- Movement Tab (Noclip, Fly, Speed, Inf Jump)
+-- Movement Tab
 local noclipOn = false
 local flyOn = false
 local infJumpOn = false
-local speed = 16
 
 createButton(tabFrames["Movement"], "Toggle Noclip", 10, function()
 	noclipOn = not noclipOn
 end)
 
-createButton(tabFrames["Movement"], "Toggle Fly (E/Q)", 70, function()
+createButton(tabFrames["Movement"], "Toggle Fly (E/Q)", 75, function()
 	flyOn = not flyOn
 end)
 
-createButton(tabFrames["Movement"], "Infinite Jump", 130, function()
+createButton(tabFrames["Movement"], "Toggle Infinite Jump", 140, function()
 	infJumpOn = not infJumpOn
 end)
 
-createButton(tabFrames["Movement"], "Speed +10", 190, function()
-	humanoid.WalkSpeed = humanoid.WalkSpeed + 10
+createButton(tabFrames["Movement"], "WalkSpeed +10", 205, function()
+	if humanoid then humanoid.WalkSpeed = humanoid.WalkSpeed + 10 end
 end)
 
-createButton(tabFrames["Movement"], "Speed Reset", 250, function()
-	humanoid.WalkSpeed = 16
+createButton(tabFrames["Movement"], "Reset WalkSpeed", 270, function()
+	if humanoid then humanoid.WalkSpeed = 16 end
 end)
 
--- Misc Tab (God Mode, Auto Arrest, etc.)
-local godModeOn = false
+-- Misc Tab - Removed God Mode (anti-kill), added Anti Tase
+local antiTaseOn = false
 
-createButton(tabFrames["Misc"], "God Mode (Anti-Arrest/Kill)", 10, function()
-	godModeOn = not godModeOn
-	if godModeOn then
-		humanoid.MaxHealth = math.huge
-		humanoid.Health = math.huge
-	end
+createButton(tabFrames["Misc"], "Toggle Anti Tase", 10, function()
+	antiTaseOn = not antiTaseOn
 end)
 
 -- Loops
 RunService.Stepped:Connect(function()
+	-- Noclip
 	if noclipOn and char then
 		for _, part in pairs(char:GetDescendants()) do
 			if part:IsA("BasePart") then part.CanCollide = false end
 		end
 	end
 
-	if killAuraOn then
+	-- Kill Aura fixed (targets enemies only, no self-damage)
+	if killAuraOn and hrp then
 		for _, plr in pairs(Players:GetPlayers()) do
-			if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			if plr ~= player and plr.Team ~= player.Team and plr.Character and plr.Character:FindFirstChild("Humanoid") then
 				local dist = (hrp.Position - plr.Character.HumanoidRootPart.Position).Magnitude
 				if dist < 20 then
-					humanoid:TakeDamage(100)
+					plr.Character.Humanoid:TakeDamage(100)
 				end
 			end
 		end
 	end
 
+	-- Fly
 	if flyOn and hrp then
 		hrp.Velocity = Vector3.new(0,0,0)
-		if UserInputService:IsKeyDown(Enum.KeyCode.Space) or UserInputService:IsKeyDown(Enum.KeyCode.E) then
-			hrp.Velocity = Vector3.new(0, 100, 0)
-		elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.Q) then
-			hrp.Velocity = Vector3.new(0, -100, 0)
-		end
 		local moveDir = humanoid.MoveDirection * 100
-		hrp.Velocity = Vector3.new(moveDir.X, hrp.Velocity.Y, moveDir.Z)
+		if UserInputService:IsKeyDown(Enum.KeyCode.Space) or UserInputService:IsKeyDown(Enum.KeyCode.E) then
+			hrp.Velocity = Vector3.new(moveDir.X, 100, moveDir.Z)
+		elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) or UserInputService:IsKeyDown(Enum.KeyCode.Q) then
+			hrp.Velocity = Vector3.new(moveDir.X, -100, moveDir.Z)
+		else
+			hrp.Velocity = Vector3.new(moveDir.X, 0, moveDir.Z)
+		end
 	end
 end)
 
+-- Anti Tase (prevents ragdoll from taser)
+if Workspace:FindFirstChild("Remote") and Workspace.Remote:FindFirstChild("PlayerTased") then
+	Workspace.Remote.PlayerTased.OnClientEvent:Connect(function()
+		if antiTaseOn then
+			wait(0.1)
+			if humanoid then humanoid:ChangeState(Enum.HumanoidStateType.Running) end
+		end
+	end)
+end
+
 RunService.RenderStepped:Connect(function()
+	-- Improved ESP with team selection & colors
 	if espOn then
 		for _, plr in pairs(Players:GetPlayers()) do
-			if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-				local head = plr.Character:FindFirstChild("Head")
-				if head and not boxes[plr] then
-					local box = Drawing.new("Square")
-					box.Thickness = 2
-					box.Filled = false
-					box.Color = Color3.fromRGB(255,0,0)
-					box.Visible = true
-					boxes[plr] = box
-				end
-				if boxes[plr] then
-					local pos, onScreen = camera:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
+			if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Team then
+				local teamName = plr.Team.Name
+				if selectedESPTargets[teamName] then
+					if not boxes[plr] then
+						local box = Drawing.new("Square")
+						box.Thickness = 2
+						box.Filled = false
+						box.Color = teamColors[teamName] or Color3.fromRGB(255,0,0)
+						box.Visible = false
+						boxes[plr] = box
+					end
+					local root = plr.Character.HumanoidRootPart
+					local pos, onScreen = camera:WorldToViewportPoint(root.Position)
 					if onScreen then
+						local size = Vector2.new(2000 / pos.Z, 3000 / pos.Z)
+						boxes[plr].Size = size
+						boxes[plr].Position = Vector2.new(pos.X - size.X/2, pos.Y - size.Y/2)
 						boxes[plr].Visible = true
-						boxes[plr].Size = Vector2.new(2000 / pos.Z, 3000 / pos.Z)
-						boxes[plr].Position = Vector2.new(pos.X - boxes[plr].Size.X/2, pos.Y - boxes[plr].Size.Y/2)
 					else
+						boxes[plr].Visible = false
+					end
+				else
+					if boxes[plr] then
 						boxes[plr].Visible = false
 					end
 				end
 			else
-				if boxes[plr] then boxes[plr]:Remove() boxes[plr] = nil end
+				if boxes[plr] then
+					boxes[plr]:Remove()
+					boxes[plr] = nil
+				end
 			end
 		end
 	end
 
-	if aimbotOn then
+	-- Aimbot with selected target team
+	if aimbotOn and selectedAimbotTarget then
 		local nearest = nil
 		local shortest = math.huge
 		for _, plr in pairs(Players:GetPlayers()) do
-			if plr ~= player and plr.Team ~= player.Team and plr.Character and plr.Character:FindFirstChild("Head") then
+			if plr ~= player and plr.Team and plr.Team.Name == selectedAimbotTarget and plr.Character and plr.Character:FindFirstChild("Head") then
 				local head = plr.Character.Head
 				local pos, onScreen = camera:WorldToViewportPoint(head.Position)
 				if onScreen then
@@ -302,10 +401,10 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
-UserInputService.JumpRequest:Connect(function()  -- Fixed the conditional connection
-	if infJumpOn then 
-		humanoid:ChangeState("Jumping") 
+UserInputService.JumpRequest:Connect(function()
+	if infJumpOn and humanoid then
+		humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 	end
 end)
 
-StarterGui:SetCore("SendNotification", {Title = "starz pl loaded", Text = "updated/compatible for latest update!", Duration = 10})
+StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "better for mobile + anti tase, better esp, etc", Duration = 8})
