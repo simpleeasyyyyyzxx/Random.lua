@@ -309,3 +309,4 @@ if infJumpOn then
 end
 
 StarterGui:SetCore("SendNotification", {Title = "starz pl loaded", Text = "updated/compatible for latest update!", Duration = 6})
+
