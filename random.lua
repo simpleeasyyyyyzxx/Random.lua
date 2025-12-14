@@ -173,7 +173,7 @@ for name, pos in pairs(teleportLocations) do
 	yPos = yPos + 65
 end
 
--- Combat Tab - IMPROVED ESP & AIMBOT DROPDOWNS (higher ZIndex, better positioning, no overlap)
+-- Combat Tab
 local teams = {"Guards", "Inmates", "Criminals"}
 local teamColors = {Guards = Color3.fromRGB(0,0,255), Inmates = Color3.fromRGB(255,165,0), Criminals = Color3.fromRGB(255,0,0)}
 
@@ -185,12 +185,15 @@ local aimbotOn = false
 local killAuraOn = false
 local boxes = {}
 
--- ESP Toggle
-createButton(tabFrames["Combat"], "Toggle ESP", 10, function()
+-- ESP Toggle Button (now with red/green color + text change)
+local espToggleBtn = createButton(tabFrames["Combat"], "ESP: OFF", 10, function()
 	espOn = not espOn
+	espToggleBtn.Text = "ESP: " .. (espOn and "ON" or "OFF")
+	espToggleBtn.BackgroundColor3 = espOn and Color3.fromRGB(0,200,0) or Color3.fromRGB(200,0,0)
 end)
+espToggleBtn.BackgroundColor3 = Color3.fromRGB(200,0,0)  -- Start red
 
--- ESP Dropdown (ScrollingFrame with higher ZIndex)
+-- ESP Dropdown
 local espScroll = Instance.new("ScrollingFrame")
 espScroll.Size = UDim2.new(1,-20,0,0)
 espScroll.Position = UDim2.new(0,10,0,75)
@@ -199,7 +202,7 @@ espScroll.BorderSizePixel = 0
 espScroll.ScrollBarThickness = 6
 espScroll.Visible = false
 espScroll.CanvasSize = UDim2.new(0,0,0,0)
-espScroll.ZIndex = 20  -- High ZIndex so it appears on top
+espScroll.ZIndex = 20
 espScroll.Parent = tabFrames["Combat"]
 
 local espCorner = Instance.new("UICorner")
@@ -207,7 +210,7 @@ espCorner.CornerRadius = UDim.new(0,8)
 espCorner.Parent = espScroll
 
 local espDropOpen = false
-local espToggleBtn = createButton(tabFrames["Combat"], "ESP Targets ▼", 75, function()
+local espTargetBtn = createButton(tabFrames["Combat"], "ESP Targets ▼", 75, function()
 	espDropOpen = not espDropOpen
 	espScroll.Visible = espDropOpen
 	if espDropOpen then
@@ -216,9 +219,9 @@ local espToggleBtn = createButton(tabFrames["Combat"], "ESP Targets ▼", 75, fu
 		espScroll:TweenSize(UDim2.new(1,-20,0,0), "Out", "Quad", 0.3, true)
 	end
 end)
-espToggleBtn.ZIndex = 15
+espTargetBtn.ZIndex = 15
 
-local espY = 5  -- Small padding
+local espY = 5
 for _, teamName in ipairs(teams) do
 	local opt = createButton(espScroll, teamName .. " ESP: OFF", espY, function()
 		selectedESPTargets[teamName] = not selectedESPTargets[teamName]
@@ -230,12 +233,15 @@ for _, teamName in ipairs(teams) do
 end
 espScroll.CanvasSize = UDim2.new(0,0,0,espY + 10)
 
--- Aimbot Toggle
-createButton(tabFrames["Combat"], "Toggle Aimbot", 160, function()
+-- Aimbot Toggle Button (red/green + text)
+local aimbotToggleBtn = createButton(tabFrames["Combat"], "Aimbot: OFF", 160, function()
 	aimbotOn = not aimbotOn
+	aimbotToggleBtn.Text = "Aimbot: " .. (aimbotOn and "ON" or "OFF")
+	aimbotToggleBtn.BackgroundColor3 = aimbotOn and Color3.fromRGB(0,200,0) or Color3.fromRGB(200,0,0)
 end)
+aimbotToggleBtn.BackgroundColor3 = Color3.fromRGB(200,0,0)
 
--- Aimbot Dropdown (ScrollingFrame with higher ZIndex)
+-- Aimbot Dropdown
 local aimbotScroll = Instance.new("ScrollingFrame")
 aimbotScroll.Size = UDim2.new(1,-20,0,0)
 aimbotScroll.Position = UDim2.new(0,10,0,225)
@@ -284,7 +290,7 @@ for _, teamName in ipairs(teams) do
 end
 aimbotScroll.CanvasSize = UDim2.new(0,0,0,aimY + 10)
 
--- Kill Aura (moved down a bit)
+-- Kill Aura
 createButton(tabFrames["Combat"], "Toggle Kill Aura", 300, function()
 	killAuraOn = not killAuraOn
 end)
@@ -401,6 +407,7 @@ RunService.RenderStepped:Connect(function()
 		end
 	end
 
+	-- Aimbot only runs if toggle is ON
 	if aimbotOn and selectedAimbotTarget then
 		local nearest = nil
 		local shortest = math.huge
@@ -429,4 +436,4 @@ UserInputService.JumpRequest:Connect(function()
 	end
 end)
 
-StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "ESP dropdown fixed - now fully visible & clean on mobile!", Duration = 8})
+StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "Dropdowns fixed, ESP/Aimbot toggles red/green, clean mobile look!", Duration = 8})
