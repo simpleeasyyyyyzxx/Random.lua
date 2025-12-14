@@ -185,7 +185,7 @@ local aimbotOn = false
 local killAuraOn = false
 local boxes = {}
 
--- ESP Toggle Button (red/green + text)
+-- ESP Toggle Button
 local espToggleBtn = createButton(tabFrames["Combat"], "ESP: OFF", 10, function()
 	espOn = not espOn
 	espToggleBtn.Text = "ESP: " .. (espOn and "ON" or "OFF")
@@ -193,7 +193,7 @@ local espToggleBtn = createButton(tabFrames["Combat"], "ESP: OFF", 10, function(
 end)
 espToggleBtn.BackgroundColor3 = Color3.fromRGB(200,0,0)
 
--- ESP Dropdown
+-- ESP Dropdown (fixed overlapping & visibility)
 local espScroll = Instance.new("ScrollingFrame")
 espScroll.Size = UDim2.new(1,-20,0,0)
 espScroll.Position = UDim2.new(0,10,0,75)
@@ -202,7 +202,7 @@ espScroll.BorderSizePixel = 0
 espScroll.ScrollBarThickness = 6
 espScroll.Visible = false
 espScroll.CanvasSize = UDim2.new(0,0,0,0)
-espScroll.ZIndex = 20
+espScroll.ZIndex = 25  -- Higher to avoid overlap
 espScroll.Parent = tabFrames["Combat"]
 
 local espCorner = Instance.new("UICorner")
@@ -219,7 +219,7 @@ local espTargetBtn = createButton(tabFrames["Combat"], "ESP Targets â–¼", 75, fu
 		espScroll:TweenSize(UDim2.new(1,-20,0,0), "Out", "Quad", 0.3, true)
 	end
 end)
-espTargetBtn.ZIndex = 15
+espTargetBtn.ZIndex = 20
 
 local espY = 5
 local espOptions = {}
@@ -229,13 +229,13 @@ for _, teamName in ipairs(teams) do
 		opt.Text = teamName .. " ESP: " .. (selectedESPTargets[teamName] and "ON" or "OFF")
 		opt.BackgroundColor3 = selectedESPTargets[teamName] and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
 	end)
-	opt.ZIndex = 21
+	opt.ZIndex = 26
 	table.insert(espOptions, opt)
 	espY = espY + 65
 end
 espScroll.CanvasSize = UDim2.new(0,0,0,espY + 10)
 
--- Aimbot Toggle Button (red/green + text)
+-- Aimbot Toggle Button
 local aimbotToggleBtn = createButton(tabFrames["Combat"], "Aimbot: OFF", 160, function()
 	aimbotOn = not aimbotOn
 	aimbotToggleBtn.Text = "Aimbot: " .. (aimbotOn and "ON" or "OFF")
@@ -252,7 +252,7 @@ aimbotScroll.BorderSizePixel = 0
 aimbotScroll.ScrollBarThickness = 6
 aimbotScroll.Visible = false
 aimbotScroll.CanvasSize = UDim2.new(0,0,0,0)
-aimbotScroll.ZIndex = 20
+aimbotScroll.ZIndex = 25
 aimbotScroll.Parent = tabFrames["Combat"]
 
 local aimCorner = Instance.new("UICorner")
@@ -269,7 +269,7 @@ local aimbotTargetBtn = createButton(tabFrames["Combat"], "Aimbot Target: None â
 		aimbotScroll:TweenSize(UDim2.new(1,-20,0,0), "Out", "Quad", 0.3, true)
 	end
 end)
-aimbotTargetBtn.ZIndex = 15
+aimbotTargetBtn.ZIndex = 20
 
 local aimY = 5
 local aimbotOptions = {}
@@ -286,7 +286,7 @@ for _, teamName in ipairs(teams) do
 			btn.BackgroundColor3 = (btn.Text == teamName and selectedAimbotTarget == teamName) and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
 		end
 	end)
-	opt.ZIndex = 21
+	opt.ZIndex = 26
 	table.insert(aimbotOptions, opt)
 	aimY = aimY + 65
 end
@@ -437,4 +437,4 @@ UserInputService.JumpRequest:Connect(function()
 	end
 end)
 
-StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "ESP/Aimbot fully fixed - toggles work, dropdowns closeable, targets toggle correctly!", Duration = 8})
+StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "Dropdowns now perfect - no overlap, fully togglable & closeable!", Duration = 8})
