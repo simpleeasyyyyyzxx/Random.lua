@@ -193,47 +193,44 @@ local espToggleBtn = createButton(tabFrames["Combat"], "ESP: OFF", 10, function(
 end)
 espToggleBtn.BackgroundColor3 = Color3.fromRGB(200,0,0)
 
--- ESP Dropdown (fixed overlapping & visibility)
-local espScroll = Instance.new("ScrollingFrame")
-espScroll.Size = UDim2.new(1,-20,0,0)
-espScroll.Position = UDim2.new(0,10,0,75)
-espScroll.BackgroundColor3 = Color3.fromRGB(35,35,35)
-espScroll.BorderSizePixel = 0
-espScroll.ScrollBarThickness = 6
-espScroll.Visible = false
-espScroll.CanvasSize = UDim2.new(0,0,0,0)
-espScroll.ZIndex = 25  -- Higher to avoid overlap
-espScroll.Parent = tabFrames["Combat"]
+-- ESP Dropdown - FIXED for mobile (larger buttons, better spacing, always on top, easy close)
+local espDropdown = Instance.new("Frame")
+espDropdown.Size = UDim2.new(1,-20,0,0)
+espDropdown.Position = UDim2.new(0,10,0,75)
+espDropdown.BackgroundColor3 = Color3.fromRGB(35,35,35)
+espDropdown.BorderSizePixel = 0
+espDropdown.Visible = false
+espDropdown.ZIndex = 30
+espDropdown.Parent = tabFrames["Combat"]
 
-local espCorner = Instance.new("UICorner")
-espCorner.CornerRadius = UDim.new(0,8)
-espCorner.Parent = espScroll
+local espDropdownCorner = Instance.new("UICorner")
+espDropdownCorner.CornerRadius = UDim.new(0,8)
+espDropdownCorner.Parent = espDropdown
 
 local espDropOpen = false
-local espTargetBtn = createButton(tabFrames["Combat"], "ESP Targets ▼", 75, function()
+local espTargetBtn = createButton(tabFrames["Combat"], "ESP Targets", 75, function()
 	espDropOpen = not espDropOpen
-	espScroll.Visible = espDropOpen
+	espDropdown.Visible = espDropOpen
 	if espDropOpen then
-		espScroll:TweenSize(UDim2.new(1,-20,0,175), "Out", "Quad", 0.3, true)
+		espDropdown:TweenSize(UDim2.new(1,-20,0,200), "Out", "Quad", 0.3, true)
 	else
-		espScroll:TweenSize(UDim2.new(1,-20,0,0), "Out", "Quad", 0.3, true)
+		espDropdown:TweenSize(UDim2.new(1,-20,0,0), "Out", "Quad", 0.3, true)
 	end
 end)
 espTargetBtn.ZIndex = 20
+espTargetBtn.Text = "ESP Targets ▼"
 
-local espY = 5
-local espOptions = {}
+local espY = 10
 for _, teamName in ipairs(teams) do
-	local opt = createButton(espScroll, teamName .. " ESP: OFF", espY, function()
+	local opt = createButton(espDropdown, teamName .. " ESP: OFF", espY, function()
 		selectedESPTargets[teamName] = not selectedESPTargets[teamName]
 		opt.Text = teamName .. " ESP: " .. (selectedESPTargets[teamName] and "ON" or "OFF")
 		opt.BackgroundColor3 = selectedESPTargets[teamName] and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
 	end)
-	opt.ZIndex = 26
-	table.insert(espOptions, opt)
-	espY = espY + 65
+	opt.ZIndex = 31
+	opt.Size = UDim2.new(1, -20, 0, 60)  -- Larger touch area
+	espY = espY + 70
 end
-espScroll.CanvasSize = UDim2.new(0,0,0,espY + 10)
 
 -- Aimbot Toggle Button
 local aimbotToggleBtn = createButton(tabFrames["Combat"], "Aimbot: OFF", 160, function()
@@ -243,38 +240,36 @@ local aimbotToggleBtn = createButton(tabFrames["Combat"], "Aimbot: OFF", 160, fu
 end)
 aimbotToggleBtn.BackgroundColor3 = Color3.fromRGB(200,0,0)
 
--- Aimbot Dropdown
-local aimbotScroll = Instance.new("ScrollingFrame")
-aimbotScroll.Size = UDim2.new(1,-20,0,0)
-aimbotScroll.Position = UDim2.new(0,10,0,225)
-aimbotScroll.BackgroundColor3 = Color3.fromRGB(35,35,35)
-aimbotScroll.BorderSizePixel = 0
-aimbotScroll.ScrollBarThickness = 6
-aimbotScroll.Visible = false
-aimbotScroll.CanvasSize = UDim2.new(0,0,0,0)
-aimbotScroll.ZIndex = 25
-aimbotScroll.Parent = tabFrames["Combat"]
+-- Aimbot Dropdown - FIXED for mobile
+local aimbotDropdown = Instance.new("Frame")
+aimbotDropdown.Size = UDim2.new(1,-20,0,0)
+aimbotDropdown.Position = UDim2.new(0,10,0,225)
+aimbotDropdown.BackgroundColor3 = Color3.fromRGB(35,35,35)
+aimbotDropdown.BorderSizePixel = 0
+aimbotDropdown.Visible = false
+aimbotDropdown.ZIndex = 30
+aimbotDropdown.Parent = tabFrames["Combat"]
 
-local aimCorner = Instance.new("UICorner")
-aimCorner.CornerRadius = UDim.new(0,8)
-aimCorner.Parent = aimbotScroll
+local aimDropdownCorner = Instance.new("UICorner")
+aimDropdownCorner.CornerRadius = UDim.new(0,8)
+aimDropdownCorner.Parent = aimbotDropdown
 
 local aimbotDropOpen = false
-local aimbotTargetBtn = createButton(tabFrames["Combat"], "Aimbot Target: None ▼", 225, function()
+local aimbotTargetBtn = createButton(tabFrames["Combat"], "Aimbot Target: None", 225, function()
 	aimbotDropOpen = not aimbotDropOpen
-	aimbotScroll.Visible = aimbotDropOpen
+	aimbotDropdown.Visible = aimbotDropOpen
 	if aimbotDropOpen then
-		aimbotScroll:TweenSize(UDim2.new(1,-20,0,175), "Out", "Quad", 0.3, true)
+		aimbotDropdown:TweenSize(UDim2.new(1,-20,0,200), "Out", "Quad", 0.3, true)
 	else
-		aimbotScroll:TweenSize(UDim2.new(1,-20,0,0), "Out", "Quad", 0.3, true)
+		aimbotDropdown:TweenSize(UDim2.new(1,-20,0,0), "Out", "Quad", 0.3, true)
 	end
 end)
 aimbotTargetBtn.ZIndex = 20
+aimbotTargetBtn.Text = "Aimbot Target: None ▼"
 
-local aimY = 5
-local aimbotOptions = {}
+local aimY = 10
 for _, teamName in ipairs(teams) do
-	local opt = createButton(aimbotScroll, teamName, aimY, function()
+	local opt = createButton(aimbotDropdown, teamName, aimY, function()
 		if selectedAimbotTarget == teamName then
 			selectedAimbotTarget = nil
 			aimbotTargetBtn.Text = "Aimbot Target: None ▼"
@@ -282,15 +277,16 @@ for _, teamName in ipairs(teams) do
 			selectedAimbotTarget = teamName
 			aimbotTargetBtn.Text = "Aimbot Target: " .. teamName .. " ▼"
 		end
-		for _, btn in ipairs(aimbotOptions) do
-			btn.BackgroundColor3 = (btn.Text == teamName and selectedAimbotTarget == teamName) and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
+		for _, btn in ipairs(aimbotDropdown:GetChildren()) do
+			if btn:IsA("TextButton") then
+				btn.BackgroundColor3 = (btn.Text == teamName and selectedAimbotTarget == teamName) and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
+			end
 		end
 	end)
-	opt.ZIndex = 26
-	table.insert(aimbotOptions, opt)
-	aimY = aimY + 65
+	opt.ZIndex = 31
+	opt.Size = UDim2.new(1, -20, 0, 60)
+	aimY = aimY + 70
 end
-aimbotScroll.CanvasSize = UDim2.new(0,0,0,aimY + 10)
 
 -- Kill Aura
 createButton(tabFrames["Combat"], "Toggle Kill Aura", 300, function()
@@ -437,4 +433,4 @@ UserInputService.JumpRequest:Connect(function()
 	end
 end)
 
-StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "Dropdowns now perfect - no overlap, fully togglable & closeable!", Duration = 8})
+StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "Dropdowns FIXED for mobile - easy open/close, no blocking, perfect!", Duration = 8})
