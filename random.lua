@@ -173,7 +173,7 @@ for name, pos in pairs(teleportLocations) do
 	yPos = yPos + 65
 end
 
--- Combat Tab - FIXED & SCROLLABLE DROPDOWNS
+-- Combat Tab - IMPROVED ESP & AIMBOT DROPDOWNS (higher ZIndex, better positioning, no overlap)
 local teams = {"Guards", "Inmates", "Criminals"}
 local teamColors = {Guards = Color3.fromRGB(0,0,255), Inmates = Color3.fromRGB(255,165,0), Criminals = Color3.fromRGB(255,0,0)}
 
@@ -190,15 +190,16 @@ createButton(tabFrames["Combat"], "Toggle ESP", 10, function()
 	espOn = not espOn
 end)
 
--- ESP Dropdown (now ScrollingFrame for reliability & visibility)
+-- ESP Dropdown (ScrollingFrame with higher ZIndex)
 local espScroll = Instance.new("ScrollingFrame")
 espScroll.Size = UDim2.new(1,-20,0,0)
 espScroll.Position = UDim2.new(0,10,0,75)
-espScroll.BackgroundColor3 = Color3.fromRGB(40,40,40)
+espScroll.BackgroundColor3 = Color3.fromRGB(35,35,35)
 espScroll.BorderSizePixel = 0
 espScroll.ScrollBarThickness = 6
 espScroll.Visible = false
 espScroll.CanvasSize = UDim2.new(0,0,0,0)
+espScroll.ZIndex = 20  -- High ZIndex so it appears on top
 espScroll.Parent = tabFrames["Combat"]
 
 local espCorner = Instance.new("UICorner")
@@ -210,37 +211,40 @@ local espToggleBtn = createButton(tabFrames["Combat"], "ESP Targets ▼", 75, fu
 	espDropOpen = not espDropOpen
 	espScroll.Visible = espDropOpen
 	if espDropOpen then
-		espScroll:TweenSize(UDim2.new(1,-20,0,165), "Out", "Quad", 0.3, true)
+		espScroll:TweenSize(UDim2.new(1,-20,0,175), "Out", "Quad", 0.3, true)
 	else
 		espScroll:TweenSize(UDim2.new(1,-20,0,0), "Out", "Quad", 0.3, true)
 	end
 end)
+espToggleBtn.ZIndex = 15
 
-local espY = 0
+local espY = 5  -- Small padding
 for _, teamName in ipairs(teams) do
 	local opt = createButton(espScroll, teamName .. " ESP: OFF", espY, function()
 		selectedESPTargets[teamName] = not selectedESPTargets[teamName]
 		opt.Text = teamName .. " ESP: " .. (selectedESPTargets[teamName] and "ON" or "OFF")
 		opt.BackgroundColor3 = selectedESPTargets[teamName] and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
 	end)
+	opt.ZIndex = 21
 	espY = espY + 65
 end
-espScroll.CanvasSize = UDim2.new(0,0,0,espY)
+espScroll.CanvasSize = UDim2.new(0,0,0,espY + 10)
 
 -- Aimbot Toggle
-createButton(tabFrames["Combat"], "Toggle Aimbot", 150, function()
+createButton(tabFrames["Combat"], "Toggle Aimbot", 160, function()
 	aimbotOn = not aimbotOn
 end)
 
--- Aimbot Dropdown (now ScrollingFrame)
+-- Aimbot Dropdown (ScrollingFrame with higher ZIndex)
 local aimbotScroll = Instance.new("ScrollingFrame")
 aimbotScroll.Size = UDim2.new(1,-20,0,0)
-aimbotScroll.Position = UDim2.new(0,10,0,215)
-aimbotScroll.BackgroundColor3 = Color3.fromRGB(40,40,40)
+aimbotScroll.Position = UDim2.new(0,10,0,225)
+aimbotScroll.BackgroundColor3 = Color3.fromRGB(35,35,35)
 aimbotScroll.BorderSizePixel = 0
 aimbotScroll.ScrollBarThickness = 6
 aimbotScroll.Visible = false
 aimbotScroll.CanvasSize = UDim2.new(0,0,0,0)
+aimbotScroll.ZIndex = 20
 aimbotScroll.Parent = tabFrames["Combat"]
 
 local aimCorner = Instance.new("UICorner")
@@ -248,17 +252,18 @@ aimCorner.CornerRadius = UDim.new(0,8)
 aimCorner.Parent = aimbotScroll
 
 local aimbotDropOpen = false
-local aimbotTargetBtn = createButton(tabFrames["Combat"], "Aimbot Target: None ▼", 215, function()
+local aimbotTargetBtn = createButton(tabFrames["Combat"], "Aimbot Target: None ▼", 225, function()
 	aimbotDropOpen = not aimbotDropOpen
 	aimbotScroll.Visible = aimbotDropOpen
 	if aimbotDropOpen then
-		aimbotScroll:TweenSize(UDim2.new(1,-20,0,165), "Out", "Quad", 0.3, true)
+		aimbotScroll:TweenSize(UDim2.new(1,-20,0,175), "Out", "Quad", 0.3, true)
 	else
 		aimbotScroll:TweenSize(UDim2.new(1,-20,0,0), "Out", "Quad", 0.3, true)
 	end
 end)
+aimbotTargetBtn.ZIndex = 15
 
-local aimY = 0
+local aimY = 5
 for _, teamName in ipairs(teams) do
 	local opt = createButton(aimbotScroll, teamName, aimY, function()
 		if selectedAimbotTarget == teamName then
@@ -274,12 +279,13 @@ for _, teamName in ipairs(teams) do
 			end
 		end
 	end)
+	opt.ZIndex = 21
 	aimY = aimY + 65
 end
-aimbotScroll.CanvasSize = UDim2.new(0,0,0,aimY)
+aimbotScroll.CanvasSize = UDim2.new(0,0,0,aimY + 10)
 
--- Kill Aura
-createButton(tabFrames["Combat"], "Toggle Kill Aura", 280, function()
+-- Kill Aura (moved down a bit)
+createButton(tabFrames["Combat"], "Toggle Kill Aura", 300, function()
 	killAuraOn = not killAuraOn
 end)
 
@@ -423,4 +429,4 @@ UserInputService.JumpRequest:Connect(function()
 	end
 end)
 
-StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "Scrollable dropdowns fixed! All 3 options visible & working", Duration = 8})
+StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "ESP dropdown fixed - now fully visible & clean on mobile!", Duration = 8})
