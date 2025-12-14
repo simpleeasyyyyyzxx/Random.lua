@@ -3,6 +3,7 @@ local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
+local CoreGui = game:GetService("CoreGui")  -- Added for reliable GUI visibility
 local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
@@ -19,7 +20,7 @@ local teleportLocations = {
 	["Prison Roof"]     = Vector3.new(918.5, 130, 2350),
 	["Sewers Entrance"] = Vector3.new(927.0, 97.5, 2140.0),
 	["Yard"]            = Vector3.new(792, 98, 2380),
-	["Guard Room (MP5)"]= Vector3.new(835, 100, 2255),  -- Approximate armory interior for new MP5
+	["Guard Room (MP5)"]= Vector3.new(835, 100, 2255),
 }
 
 player.CharacterAdded:Connect(function(newChar)
@@ -31,7 +32,7 @@ end)
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "starz prison life gui"
 screenGui.ResetOnSpawn = false
-screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.Parent = CoreGui  -- Changed to CoreGui so the toggle button shows reliably on injection
 
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 60, 0, 60)
@@ -142,16 +143,16 @@ local function createButton(parent, text, yPos, callback)
 	return btn
 end
 
--- Home Tab
-Instance.new("TextLabel", tabFrames["Home"]).Setup = function(self)
-	self.Size = UDim2.new(1, -20, 0, 200)
-	self.Position = UDim2.new(0, 10, 0, 10)
-	self.BackgroundTransparency = 1
-	self.TextColor3 = Color3.new(1,1,1)
-	self.TextWrapped = true
-	self.TextScaled = true
-	self.Text = "starz pl script, Features: Teleports, ESP/Aimbot, Fly, Noclip, Speed, Kill Aura, anti arrest/anti tase, etc. enjoy"
-end:Setup()
+-- Home Tab (fixed invalid .Setup syntax)
+local homeLabel = Instance.new("TextLabel")
+homeLabel.Size = UDim2.new(1, -20, 0, 200)
+homeLabel.Position = UDim2.new(0, 10, 0, 10)
+homeLabel.BackgroundTransparency = 1
+homeLabel.TextColor3 = Color3.new(1,1,1)
+homeLabel.TextWrapped = true
+homeLabel.TextScaled = true
+homeLabel.Text = "starz pl script, Features: Teleports, ESP/Aimbot, Fly, Noclip, Speed, Kill Aura, anti arrest/anti tase, etc. enjoy"
+homeLabel.Parent = tabFrames["Home"]
 
 -- Teleports Tab
 local yPos = 10
@@ -232,8 +233,7 @@ RunService.Stepped:Connect(function()
 			if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
 				local dist = (hrp.Position - plr.Character.HumanoidRootPart.Position).Magnitude
 				if dist < 20 then
-					humanoid:TakeDamage(100)  -- Remote fire or punch sim (works in most cases)
-					-- Alternative: fire click detectors if available
+					humanoid:TakeDamage(100)
 				end
 			end
 		end
@@ -302,11 +302,10 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
-if infJumpOn then
-	UserInputService.JumpRequest:Connect(function()
-		if infJumpOn then humanoid:ChangeState("Jumping") end
-	end)
-end
+UserInputService.JumpRequest:Connect(function()  -- Fixed the conditional connection
+	if infJumpOn then 
+		humanoid:ChangeState("Jumping") 
+	end
+end)
 
 StarterGui:SetCore("SendNotification", {Title = "starz pl loaded", Text = "updated/compatible for latest update!", Duration = 6})
-
