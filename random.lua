@@ -173,7 +173,7 @@ for name, pos in pairs(teleportLocations) do
 	yPos = yPos + 65
 end
 
--- Combat Tab - FIXED dropdowns (dynamic positioning + proper height calculation)
+-- Combat Tab - FIXED & SCROLLABLE DROPDOWNS
 local teams = {"Guards", "Inmates", "Criminals"}
 local teamColors = {Guards = Color3.fromRGB(0,0,255), Inmates = Color3.fromRGB(255,165,0), Criminals = Color3.fromRGB(255,0,0)}
 
@@ -190,61 +190,77 @@ createButton(tabFrames["Combat"], "Toggle ESP", 10, function()
 	espOn = not espOn
 end)
 
--- ESP Dropdown Frame
-local espDropdown = Instance.new("Frame")
-espDropdown.Size = UDim2.new(1,-20,0,0)
-espDropdown.Position = UDim2.new(0,10,0,75)  -- Right below the toggle button
-espDropdown.BackgroundTransparency = 1
-espDropdown.Visible = false
-espDropdown.Parent = tabFrames["Combat"]
+-- ESP Dropdown (now ScrollingFrame for reliability & visibility)
+local espScroll = Instance.new("ScrollingFrame")
+espScroll.Size = UDim2.new(1,-20,0,0)
+espScroll.Position = UDim2.new(0,10,0,75)
+espScroll.BackgroundColor3 = Color3.fromRGB(40,40,40)
+espScroll.BorderSizePixel = 0
+espScroll.ScrollBarThickness = 6
+espScroll.Visible = false
+espScroll.CanvasSize = UDim2.new(0,0,0,0)
+espScroll.Parent = tabFrames["Combat"]
+
+local espCorner = Instance.new("UICorner")
+espCorner.CornerRadius = UDim.new(0,8)
+espCorner.Parent = espScroll
 
 local espDropOpen = false
 local espToggleBtn = createButton(tabFrames["Combat"], "ESP Targets ▼", 75, function()
 	espDropOpen = not espDropOpen
-	espDropdown.Visible = espDropOpen
-	local height = espDropOpen and (65 * #teams + 10) or 0
-	espDropdown:TweenSize(UDim2.new(1,-20,0,height), "Out", "Quad", 0.3, true)
+	espScroll.Visible = espDropOpen
+	if espDropOpen then
+		espScroll:TweenSize(UDim2.new(1,-20,0,165), "Out", "Quad", 0.3, true)
+	else
+		espScroll:TweenSize(UDim2.new(1,-20,0,0), "Out", "Quad", 0.3, true)
+	end
 end)
 
--- ESP Options (dynamically placed)
-local espOptions = {}
-local espYPos = 0
+local espY = 0
 for _, teamName in ipairs(teams) do
-	local opt = createButton(espDropdown, teamName .. " ESP: OFF", espYPos, function()
+	local opt = createButton(espScroll, teamName .. " ESP: OFF", espY, function()
 		selectedESPTargets[teamName] = not selectedESPTargets[teamName]
 		opt.Text = teamName .. " ESP: " .. (selectedESPTargets[teamName] and "ON" or "OFF")
 		opt.BackgroundColor3 = selectedESPTargets[teamName] and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
 	end)
-	table.insert(espOptions, opt)
-	espYPos = espYPos + 65
+	espY = espY + 65
 end
+espScroll.CanvasSize = UDim2.new(0,0,0,espY)
 
 -- Aimbot Toggle
-local aimbotToggleBtn = createButton(tabFrames["Combat"], "Toggle Aimbot", 150, function()
+createButton(tabFrames["Combat"], "Toggle Aimbot", 150, function()
 	aimbotOn = not aimbotOn
 end)
 
--- Aimbot Dropdown Frame
-local aimbotDropdown = Instance.new("Frame")
-aimbotDropdown.Size = UDim2.new(1,-20,0,0)
-aimbotDropdown.Position = UDim2.new(0,10,0,215)  -- Positioned below ESP section
-aimbotDropdown.BackgroundTransparency = 1
-aimbotDropdown.Visible = false
-aimbotDropdown.Parent = tabFrames["Combat"]
+-- Aimbot Dropdown (now ScrollingFrame)
+local aimbotScroll = Instance.new("ScrollingFrame")
+aimbotScroll.Size = UDim2.new(1,-20,0,0)
+aimbotScroll.Position = UDim2.new(0,10,0,215)
+aimbotScroll.BackgroundColor3 = Color3.fromRGB(40,40,40)
+aimbotScroll.BorderSizePixel = 0
+aimbotScroll.ScrollBarThickness = 6
+aimbotScroll.Visible = false
+aimbotScroll.CanvasSize = UDim2.new(0,0,0,0)
+aimbotScroll.Parent = tabFrames["Combat"]
+
+local aimCorner = Instance.new("UICorner")
+aimCorner.CornerRadius = UDim.new(0,8)
+aimCorner.Parent = aimbotScroll
 
 local aimbotDropOpen = false
 local aimbotTargetBtn = createButton(tabFrames["Combat"], "Aimbot Target: None ▼", 215, function()
 	aimbotDropOpen = not aimbotDropOpen
-	aimbotDropdown.Visible = aimbotDropOpen
-	local height = aimbotDropOpen and (65 * #teams + 10) or 0
-	aimbotDropdown:TweenSize(UDim2.new(1,-20,0,height), "Out", "Quad", 0.3, true)
+	aimbotScroll.Visible = aimbotDropOpen
+	if aimbotDropOpen then
+		aimbotScroll:TweenSize(UDim2.new(1,-20,0,165), "Out", "Quad", 0.3, true)
+	else
+		aimbotScroll:TweenSize(UDim2.new(1,-20,0,0), "Out", "Quad", 0.3, true)
+	end
 end)
 
--- Aimbot Options
-local aimbotOptions = {}
-local aimYPos = 0
+local aimY = 0
 for _, teamName in ipairs(teams) do
-	local opt = createButton(aimbotDropdown, teamName, aimYPos, function()
+	local opt = createButton(aimbotScroll, teamName, aimY, function()
 		if selectedAimbotTarget == teamName then
 			selectedAimbotTarget = nil
 			aimbotTargetBtn.Text = "Aimbot Target: None ▼"
@@ -252,13 +268,15 @@ for _, teamName in ipairs(teams) do
 			selectedAimbotTarget = teamName
 			aimbotTargetBtn.Text = "Aimbot Target: " .. teamName .. " ▼"
 		end
-		for _, btn in ipairs(aimbotOptions) do
-			btn.BackgroundColor3 = (btn.Text == teamName and selectedAimbotTarget == teamName) and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
+		for _, child in ipairs(aimbotScroll:GetChildren()) do
+			if child:IsA("TextButton") then
+				child.BackgroundColor3 = (child.Text == teamName and selectedAimbotTarget == teamName) and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
+			end
 		end
 	end)
-	table.insert(aimbotOptions, opt)
-	aimYPos = aimYPos + 65
+	aimY = aimY + 65
 end
+aimbotScroll.CanvasSize = UDim2.new(0,0,0,aimY)
 
 -- Kill Aura
 createButton(tabFrames["Combat"], "Toggle Kill Aura", 280, function()
@@ -405,4 +423,4 @@ UserInputService.JumpRequest:Connect(function()
 	end
 end)
 
-StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "Dropdowns fixed! ESP & Aimbot targets now work perfectly", Duration = 8})
+StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "Scrollable dropdowns fixed! All 3 options visible & working", Duration = 8})
