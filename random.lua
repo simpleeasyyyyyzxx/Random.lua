@@ -185,13 +185,13 @@ local aimbotOn = false
 local killAuraOn = false
 local boxes = {}
 
--- ESP Toggle Button (now with red/green color + text change)
+-- ESP Toggle Button (red/green + text)
 local espToggleBtn = createButton(tabFrames["Combat"], "ESP: OFF", 10, function()
 	espOn = not espOn
 	espToggleBtn.Text = "ESP: " .. (espOn and "ON" or "OFF")
 	espToggleBtn.BackgroundColor3 = espOn and Color3.fromRGB(0,200,0) or Color3.fromRGB(200,0,0)
 end)
-espToggleBtn.BackgroundColor3 = Color3.fromRGB(200,0,0)  -- Start red
+espToggleBtn.BackgroundColor3 = Color3.fromRGB(200,0,0)
 
 -- ESP Dropdown
 local espScroll = Instance.new("ScrollingFrame")
@@ -222,6 +222,7 @@ end)
 espTargetBtn.ZIndex = 15
 
 local espY = 5
+local espOptions = {}
 for _, teamName in ipairs(teams) do
 	local opt = createButton(espScroll, teamName .. " ESP: OFF", espY, function()
 		selectedESPTargets[teamName] = not selectedESPTargets[teamName]
@@ -229,6 +230,7 @@ for _, teamName in ipairs(teams) do
 		opt.BackgroundColor3 = selectedESPTargets[teamName] and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
 	end)
 	opt.ZIndex = 21
+	table.insert(espOptions, opt)
 	espY = espY + 65
 end
 espScroll.CanvasSize = UDim2.new(0,0,0,espY + 10)
@@ -270,6 +272,7 @@ end)
 aimbotTargetBtn.ZIndex = 15
 
 local aimY = 5
+local aimbotOptions = {}
 for _, teamName in ipairs(teams) do
 	local opt = createButton(aimbotScroll, teamName, aimY, function()
 		if selectedAimbotTarget == teamName then
@@ -279,13 +282,12 @@ for _, teamName in ipairs(teams) do
 			selectedAimbotTarget = teamName
 			aimbotTargetBtn.Text = "Aimbot Target: " .. teamName .. " ▼"
 		end
-		for _, child in ipairs(aimbotScroll:GetChildren()) do
-			if child:IsA("TextButton") then
-				child.BackgroundColor3 = (child.Text == teamName and selectedAimbotTarget == teamName) and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
-			end
+		for _, btn in ipairs(aimbotOptions) do
+			btn.BackgroundColor3 = (btn.Text == teamName and selectedAimbotTarget == teamName) and Color3.fromRGB(0,255,0) or Color3.fromRGB(50,50,50)
 		end
 	end)
 	opt.ZIndex = 21
+	table.insert(aimbotOptions, opt)
 	aimY = aimY + 65
 end
 aimbotScroll.CanvasSize = UDim2.new(0,0,0,aimY + 10)
@@ -407,7 +409,6 @@ RunService.RenderStepped:Connect(function()
 		end
 	end
 
-	-- Aimbot only runs if toggle is ON
 	if aimbotOn and selectedAimbotTarget then
 		local nearest = nil
 		local shortest = math.huge
@@ -436,4 +437,4 @@ UserInputService.JumpRequest:Connect(function()
 	end
 end)
 
-StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "Dropdowns fixed, ESP/Aimbot toggles red/green, clean mobile look!", Duration = 8})
+StarterGui:SetCore("SendNotification", {Title = "STARZ PL Loaded", Text = "ESP/Aimbot fully fixed - toggles work, dropdowns closeable, targets toggle correctly!", Duration = 8})
