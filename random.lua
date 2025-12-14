@@ -308,4 +308,4 @@ UserInputService.JumpRequest:Connect(function()  -- Fixed the conditional connec
 	end
 end)
 
-StarterGui:SetCore("SendNotification", {Title = "starz pl loaded", Text = "updated/compatible for latest update!", Duration = 6})
+StarterGui:SetCore("SendNotification", {Title = "starz pl loaded", Text = "updated/compatible for latest update!", Duration = 10})
